@@ -68,11 +68,10 @@ def convert_nightscout(entries, start_time=None):
 			continue
 
 		if entry["medications_list"]:
-			out.append({
-				notes =  notes + "--pills taken--",
+			notes = notes + "--pills taken--",
+			out.appent({		
 				"eventType": "Note",
-				"notes": notes
-			
+				"notes": notes			
 			})
 
 		dat = {
