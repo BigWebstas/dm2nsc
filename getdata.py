@@ -64,14 +64,16 @@ def convert_nightscout(entries, start_time=None):
 				"notes": BASAL_TYPE
 			})
 		if "Night" in notes:
-			print ('Entry originated from nightscout'),
+			print ('Already_Added'),
 			continue
 
 		if entry["medications_list"]:
 			notes = notes + "--pills taken--",
-			out.appent({		
+			out.append({		
 				"eventType": "Note",
-				"notes": notes			
+				"notes": notes,
+				"enteredBy": author,
+				"insulin": bolus
 			})
 
 		dat = {
