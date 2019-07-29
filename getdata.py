@@ -39,8 +39,8 @@ def to_mgdl(mmol):
 
 def convert_nightscout(entries, start_time=None):
 	out = []
-	with open('data.json', 'w', encoding='utf-8') as f:
-		json.dump(entries, f, ensure_ascii=False, indent=4)
+	#with open('entries_dumped.json', 'w', encoding='utf-8') as f:
+		#json.dump(entries, f, ensure_ascii=False, indent=4)
 	for entry in entries:
 		bolus = entry["carb_bolus"] + entry["correction_bolus"]
 		time = arrow.get(int(entry["entry_time"])/1000).to(entry["timezone"])
