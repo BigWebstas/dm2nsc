@@ -53,9 +53,6 @@ def convert_nightscout(entries, start_time=None):
 		author = NS_AUTHOR
 
 		# You can do some custom processing here, if necessary. e.x.:
-		#if arrow.get("10/3/2017").date() > time.date() and DO_MYSUGR_PROCESSING:
-			#author = "mySugr via "+author
-			# basal data is for Lantus
 		if entry["basal"]:
 			out.append({
 				"eventType": "Temp Basal",
@@ -71,7 +68,12 @@ def convert_nightscout(entries, start_time=None):
 			continue
 
 		if entry["medications_list"]:
-			notes =  notes + "--pills taken--"
+			out.append({
+				notes =  notes + "--pills taken--",
+				"eventType": "Note",
+				"notes": notes
+			
+			})
 
 		dat = {
 			"eventType": "Meal Bolus",
