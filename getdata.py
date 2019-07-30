@@ -1,5 +1,5 @@
 import requests, json, arrow, hashlib, urllib, datetime, pickle
-from secret import USERNAME, PASSWORD, NS_URL, NS_SECRET, BASAL_TYPE
+from secret import USERNAME, PASSWORD, NS_URL, NS_SECRET, BASAL_TYPE, DEBUG
 
 # this is the enteredBy field saved to Nightscout
 NS_AUTHOR = "Diabetes-M"
@@ -39,8 +39,9 @@ def to_mgdl(mmol):
 
 def convert_nightscout(entries, start_time=None):
 	out = []
-	#with open('entries_dumped.json', 'w', encoding='utf-8') as f:
-		#json.dump(entries, f, ensure_ascii=False, indent=4)
+	if DEBUG:
+		with open('entries_dumped.json', 'w', encoding='utf-8') as f:
+			json.dump(entries, f, ensure_ascii=False, indent=4)
 	for entry in entries:
 		bolus = entry["carb_bolus"] + entry["correction_bolus"]
 		time = arrow.get(int(entry["entry_time"])/1000).to(entry["timezone"])
