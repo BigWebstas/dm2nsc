@@ -44,7 +44,7 @@ def convert_nightscout(entries, start_time=None):
 	for entry in entries:
 		bolus = entry["carb_bolus"] + entry["correction_bolus"]
 		time = arrow.get(int(entry["entry_time"])/1000).to(entry["timezone"])
-		time2 = arrow.get(int(entry["entry_time"])/1000).isoformat()
+		timeISO = arrow.get(int(entry["entry_time"])/1000).isoformat()
 		notes = entry["notes"]
 
 		if start_time and start_time >= time:
@@ -56,29 +56,20 @@ def convert_nightscout(entries, start_time=None):
 		if entry["basal"]:
 			out.append({
 				"eventType": "Temp Basal",
-				"created_at": time2.format(),
+				"created_at": timeISO.format(),
 				"absolute": entry["basal"],
 				"enteredBy": author,
 				"duration": 1440,
 				"reason": BASAL_TYPE,
 				"notes": BASAL_TYPE
 			})
-		if "Night" in notes:
+		if "Nightscout" in notes:
 			print ('Already_Added'),
 			continue
 
-		if entry["medications_list"]:
-			notes = notes + "--pills taken--",
-			out.append({		
-				"eventType": "Note",
-				"notes": notes,
-				"enteredBy": author,
-				"insulin": bolus
-			})
-
 		dat = {
 			"eventType": "Meal Bolus",
-			"created_at": time2.format(),
+			"created_at": timeISO.format(),
 			"carbs": entry["carbs"],
 			"insulin": bolus,
 			"notes": notes,
@@ -91,6 +82,14 @@ def convert_nightscout(entries, start_time=None):
 				"glucose": glucose,
 				"glucoseType": "Finger",
 				"units": "mg/dL"
+			})
+		if entry["medications_list"]:
+			notes = notes + "--pills taken--",
+			dat.update({		
+				"eventType": "Note",
+				"notes": notes,
+				"enteredBy": author,
+				"insulin": bolus
 			})			
 
 		out.append(dat)
