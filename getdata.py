@@ -51,7 +51,7 @@ def convert_nightscout(entries, start_time=None):
 		
 	for entry in entries:
 		bolus = entry["carb_bolus"] + entry["correction_bolus"]
-		time = arrow.get(int(entry["entry_time"])/1000).to(entry["timezone"])
+		time = arrow.get(int(entry["entry_time"])/1000)
 		notes = entry["notes"]
 			
 		if start_time and start_time >= time:
@@ -63,7 +63,7 @@ def convert_nightscout(entries, start_time=None):
 		if entry["basal"]:
 			out.append({
 				"eventType": "Temp Basal",
-				"created_at": time.format(),
+				"created_at": time.isoformat(),
 				"absolute": entry["basal"],
 				"enteredBy": author,
 				"duration": 1440,
@@ -77,7 +77,7 @@ def convert_nightscout(entries, start_time=None):
 
 		dat = {
 			"eventType": "Meal Bolus",
-			"created_at": time.format(),
+			"created_at": time.isoformat(),
 			"carbs": entry["carbs"],
 			"insulin": bolus,
 			"notes": notes,
