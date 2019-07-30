@@ -1,10 +1,14 @@
-import requests, json, arrow, hashlib, urllib, datetime, pickle
+import requests, json, arrow, hashlib, urllib, datetime, pickle, warnings
 from secret import USERNAME, PASSWORD, NS_URL, NS_SECRET, BASAL_TYPE, DEBUG
+from arrow.factory import ArrowParseWarning
 
 # this is the enteredBy field saved to Nightscout
 NS_AUTHOR = "Diabetes-M"
 
 DO_MYSUGR_PROCESSING = (USERNAME == 'jwoglom')
+
+#https://github.com/crsmithdev/arrow/issues/612
+warnings.simplefilter("ignore", ArrowParseWarning)
 
 def get_login():
 	return requests.post('https://analytics.diabetes-m.com/api/v1/user/authentication/login', json={
@@ -40,15 +44,16 @@ def to_mgdl(mmol):
 def convert_nightscout(entries, start_time=None):
 	out = []
 	if DEBUG:
+		print ("Dumping entries to file"),
 		with open('entries_dumped.json', 'w', encoding='utf-8') as f:
 			json.dump(entries, f, ensure_ascii=False, indent=4)
+		
+		
 	for entry in entries:
 		bolus = entry["carb_bolus"] + entry["correction_bolus"]
 		time = arrow.get(int(entry["entry_time"])/1000).to(entry["timezone"])
-		timeISO = arrow.get(int(entry["entry_time"])/1000).isoformat()
 		notes = entry["notes"]
-		
-
+			
 		if start_time and start_time >= time:
 			continue
 		
@@ -58,7 +63,7 @@ def convert_nightscout(entries, start_time=None):
 		if entry["basal"]:
 			out.append({
 				"eventType": "Temp Basal",
-				"created_at": timeISO.format(),
+				"created_at": time.format(),
 				"absolute": entry["basal"],
 				"enteredBy": author,
 				"duration": 1440,
@@ -66,12 +71,13 @@ def convert_nightscout(entries, start_time=None):
 				"notes": BASAL_TYPE
 			})
 		if "Nightscout" in notes:
-			print ('Already_Added'),
+			if DEBUG:
+				print ('Nightscout in notes detected, skipping entry'),
 			continue
 
 		dat = {
 			"eventType": "Meal Bolus",
-			"created_at": timeISO.format(),
+			"created_at": time.format(),
 			"carbs": entry["carbs"],
 			"insulin": bolus,
 			"notes": notes,
