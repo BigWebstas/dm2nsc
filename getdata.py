@@ -47,6 +47,7 @@ def convert_nightscout(entries, start_time=None):
 		time = arrow.get(int(entry["entry_time"])/1000).to(entry["timezone"])
 		timeISO = arrow.get(int(entry["entry_time"])/1000).isoformat()
 		notes = entry["notes"]
+		
 
 		if start_time and start_time >= time:
 			continue
@@ -75,6 +76,7 @@ def convert_nightscout(entries, start_time=None):
 			"insulin": bolus,
 			"notes": notes,
 			"enteredBy": author
+			
 		}
 		if entry["glucose"]:
 			glucose = entry["glucoseInCurrentUnit"] if entry["glucoseInCurrentUnit"] and entry["us_units"] else to_mgdl(entry["glucose"])
@@ -90,7 +92,8 @@ def convert_nightscout(entries, start_time=None):
 				"eventType": "Note",
 				"notes": notes,
 				"enteredBy": author,
-				"insulin": bolus
+				"insulin": bolus,
+				
 			})			
 
 		out.append(dat)
