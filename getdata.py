@@ -37,44 +37,35 @@ def get_entries(login):
 
 	return entries.json()
 
-
 def to_mgdl(mmol):
 	return round(mmol*18)
 
 def convert_nightscout(entries, start_time=None):
 	out = []
+	entriesPrsd = ""
 	if DEBUG:
 		print ("Dumping entries to file"),
 		with open('entries_dumped.json', 'w', encoding='utf-8') as f:
 			json.dump(entries, f, ensure_ascii=False, indent=4)
 		
-		
 	for entry in entries:
 		bolus = entry["carb_bolus"] + entry["correction_bolus"]
 		time = arrow.get(int(entry["entry_time"])/1000)
 		notes = entry["notes"]
-			
+		medication = entry["medications"]	
+	
 		if start_time and start_time >= time:
 			continue
 		
 		author = NS_AUTHOR
-
 		# You can do some custom processing here, if necessary. e.x.:
-		if entry["basal"]:
-			out.append({
-				"eventType": "Temp Basal",
-				"created_at": time.isoformat(),
-				"absolute": entry["basal"],
-				"enteredBy": author,
-				"duration": 1440,
-				"reason": BASAL_TYPE,
-				"notes": BASAL_TYPE
-			})
+		
+		#Skip entry if its already added
 		if "Nightscout" in notes:
 			if DEBUG:
 				print ('Nightscout in notes detected, skipping entry'),
 			continue
-
+		
 		dat = {
 			"eventType": "Meal Bolus",
 			"created_at": time.isoformat(),
@@ -84,6 +75,16 @@ def convert_nightscout(entries, start_time=None):
 			"enteredBy": author
 			
 		}
+		if entry["basal"]:
+			dat.update({
+				"eventType": "Temp Basal",
+				"created_at": time.isoformat(),
+				"absolute": entry["basal"],
+				"enteredBy": author,
+				"duration": 1440,
+				"reason": BASAL_TYPE,
+				"notes": BASAL_TYPE
+			})
 		if entry["glucose"]:
 			glucose = entry["glucoseInCurrentUnit"] if entry["glucoseInCurrentUnit"] and entry["us_units"] else to_mgdl(entry["glucose"])
 			dat.update({
@@ -93,13 +94,12 @@ def convert_nightscout(entries, start_time=None):
 				"units": "mg/dL"
 			})
 		if entry["medications_list"]:
-			notes = notes + "--pills taken--",
+			notes = medication.count("name") , " pill(s) taken",
 			dat.update({		
 				"eventType": "Note",
 				"notes": notes,
 				"enteredBy": author,
-				"insulin": bolus,
-				
+				"insulin": bolus
 			})			
 
 		out.append(dat)
