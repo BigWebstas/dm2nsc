@@ -52,7 +52,9 @@ def convert_nightscout(entries, start_time=None):
 		bolus = entry["carb_bolus"] + entry["correction_bolus"]
 		time = arrow.get(int(entry["entry_time"])/1000)
 		notes = entry["notes"]
-		medication = entry["medications"]	
+		medication = entry["medications"]
+		exercise = entry["exercise_comment"]
+		exercise_duration = entry["exercise_duration"]
 	
 		if start_time and start_time >= time:
 			continue
@@ -100,7 +102,16 @@ def convert_nightscout(entries, start_time=None):
 				"notes": notes,
 				"enteredBy": author,
 				"insulin": bolus
-			})			
+			})
+		if entry["exercise_duration"]:
+			notes = exercise,
+			dat.update({
+				"eventType": "Exercise",
+				"notes": notes,
+				"enteredBy": author,
+				"duration": exercise_duration
+			})	
+			
 
 		out.append(dat)
 
