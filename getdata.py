@@ -96,7 +96,7 @@ def convert_nightscout(entries, start_time=None):
 				"units": "mg/dL"
 			})
 		if entry["medications_list"]:
-			notes = medication.count("name") , " pill(s) taken",
+			notes = medication.count("name") , " pill(s) taken"
 			dat.update({		
 				"eventType": "Note",
 				"notes": notes,
@@ -104,7 +104,7 @@ def convert_nightscout(entries, start_time=None):
 				"insulin": bolus
 			})
 		if entry["exercise_duration"]:
-			notes = exercise,
+			notes = exercise
 			dat.update({
 				"eventType": "Exercise",
 				"notes": notes,
